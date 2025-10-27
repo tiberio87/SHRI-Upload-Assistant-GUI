@@ -136,29 +136,49 @@ def patch_config(content: str, keys: dict) -> str:
     content = content.replace('"use_italian_title": False', '"use_italian_title": True')
     return content
 
-def setup_from_git():
+def setup_from_local():
+    """Setup usando una copia locale di SHRI-Upload-Assistant-GUI.
+
+    Comportamento:
+    - Se la sottocartella 'Upload-Assistant' è presente nella stessa cartella dello script,
+      offre all'utente di usarla automaticamente.
+    - Altrimenti, chiede all'utente di selezionare la cartella root dove si trova
+      'Upload-Assistant'.
+    Restituisce (bot_path, venv_path).
+    """
     progress_bar.pack(pady=(10, 0))
     progress_bar.set(0.0)
-    status_label.configure(text="🔀 Clonazione repository...", text_color="yellow")
+    status_label.configure(text="🔍 Preparazione setup locale...", text_color="yellow")
     app.update()
 
-    messagebox.showinfo("Setup automatico", "Seleziona la cartella dove vuoi clonare il bot.")
-    target_dir = filedialog.askdirectory(title="Scegli dove salvare Upload-Assistant")
-    if not target_dir:
-        messagebox.showerror("Errore", "Cartella non selezionata. Impossibile continuare.")
-        app.destroy()
-        exit()
+    repo_root = os.path.abspath(os.path.dirname(__file__))
+    detected_bot = os.path.join(repo_root, "Upload-Assistant")
 
-    process = subprocess.run("git clone https://github.com/Audionut/Upload-Assistant.git", cwd=target_dir, shell=True)
-    if process.returncode != 0:
-        messagebox.showerror("Errore", "Errore durante la clonazione della repository.")
-        app.destroy()
-        exit()
+    bot_path = None
+    # Se troviamo Upload-Assistant nella stessa repo, chiediamo se usarla
+    if os.path.exists(detected_bot) and os.path.isdir(detected_bot):
+        dialog = CTkYesNoDialog(app, "Cartella trovata", f"Ho trovato Upload-Assistant in:\n{detected_bot}\nVuoi usarla per il setup?")
+        if dialog.result:
+            bot_path = detected_bot
+
+    if not bot_path:
+        # chiedi all'utente la root dove è clonato 'SHRI-Upload-Assistant-GUI'
+        messagebox.showinfo("Setup automatico", "Seleziona la cartella root del progetto 'SHRI-Upload-Assistant-GUI' (dovrebbe contenere la sottocartella Upload-Assistant).")
+        target_dir = filedialog.askdirectory(title="Cartella root SHRI-Upload-Assistant-GUI")
+        if not target_dir:
+            messagebox.showerror("Errore", "Cartella non selezionata. Impossibile continuare.")
+            app.destroy()
+            exit()
+
+        candidate = os.path.join(target_dir, "Upload-Assistant")
+        if not os.path.exists(candidate) or not os.path.isdir(candidate):
+            messagebox.showerror("Errore", "Non ho trovato la cartella 'Upload-Assistant' nella root selezionata. Assicurati di aver clonato 'tiberio87/SHRI-Upload-Assistant-GUI'.")
+            app.destroy()
+            exit()
+        bot_path = candidate
 
     progress_bar.set(0.2)
     app.update()
-
-    bot_path = os.path.join(target_dir, "Upload-Assistant")
     venv_path = os.path.join(bot_path, ".venv")
 
     status_label.configure(text="🔧 Creazione ambiente virtuale...", text_color="yellow")
@@ -227,7 +247,7 @@ def get_valid_paths() -> tuple[str, str]:
     if not temp_bot_path or not temp_venv_path or not resolve_activate_path(temp_venv_path):
         dialog = CTkYesNoDialog(app, "Setup iniziale", "Il bot non è ancora configurato. Vuoi eseguire il setup automatico?")
         if dialog.result:
-            return setup_from_git()
+            return setup_from_local()
         else:
             return ask_for_paths()
     return temp_bot_path, temp_venv_path
