@@ -79,11 +79,11 @@ progress_bar.pack(pady=(10, 0))
 progress_bar.pack_forget()
 
 # === FUNZIONI DI CONFIGURAZIONE ===
-def save_config(bot_path, venv_path):
+def save_config(bot_path: str, venv_path: str) -> None:
     with open(CONFIG_FILE, "w", encoding="utf-8") as f:
         f.write(f"{bot_path}\n{venv_path}")
 
-def load_config():
+def load_config() -> tuple[str | None, str | None]:
     if os.path.exists(CONFIG_FILE):
         with open(CONFIG_FILE, "r", encoding="utf-8") as f:
             lines = f.read().splitlines()
@@ -221,15 +221,20 @@ def setup_from_git():
     return bot_path, venv_path
     
 # === INIZIO APPLICAZIONE ===
-bot_path, venv_path = load_config()
-if not bot_path or not venv_path or not resolve_activate_path(venv_path):
-    dialog = CTkYesNoDialog(app, "Setup iniziale", "Il bot non è ancora configurato. Vuoi eseguire il setup automatico?")
-    if dialog.result:
-        bot_path, venv_path = setup_from_git()
-    else:
-        bot_path, venv_path = ask_for_paths()
+def get_valid_paths() -> tuple[str, str]:
+    temp_bot_path, temp_venv_path = load_config()
+    
+    if not temp_bot_path or not temp_venv_path or not resolve_activate_path(temp_venv_path):
+        dialog = CTkYesNoDialog(app, "Setup iniziale", "Il bot non è ancora configurato. Vuoi eseguire il setup automatico?")
+        if dialog.result:
+            return setup_from_git()
+        else:
+            return ask_for_paths()
+    return temp_bot_path, temp_venv_path
 
+bot_path, venv_path = get_valid_paths()
 activate_path = resolve_activate_path(venv_path)
+assert activate_path is not None, "Percorso di attivazione non trovato"
 
 # === FUNZIONI APPLICAZIONE ===
 def select_path():
