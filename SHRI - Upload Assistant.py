@@ -286,6 +286,7 @@ def run_upload():
         return
 
     tracker = tracker_option.get().strip().upper()
+    imdb_id = imdb_entry.get().strip()
     tmdb_id = tmdb_entry.get().strip()
     tag_value = tag_entry.get().strip()
     service_value = service_entry.get().strip()
@@ -293,6 +294,8 @@ def run_upload():
 
     upload_cmd = f'python upload.py "{selected_path}" --skip_auto_torrent --no-seed --trackers {tracker} --cleanup'
 
+    if imdb_id:
+        upload_cmd += f" --imdb {imdb_id}"
     if tmdb_id:
         upload_cmd += f" --tmdb {tmdb_id}"
     if tag_value:
@@ -325,6 +328,10 @@ tracker_option = ctk.CTkComboBox(app, values=["SHRI"], width=120)
 tracker_option.set("")
 tracker_option.pack(pady=5)
 ToolTip(tracker_option, "Seleziona il tracker dove vuoi caricare il file.")
+
+imdb_entry = ctk.CTkEntry(app, placeholder_text="IMDb ID (opzionale)", width=240)
+imdb_entry.pack(pady=5)
+ToolTip(imdb_entry, "Inserisci l'ID IMDb (opzionale) da imdb.com\nEsempio: tt0068646 per Il Padrino.")
 
 tmdb_entry = ctk.CTkEntry(app, placeholder_text="TMDB ID (opzionale)", width=240)
 tmdb_entry.pack(pady=5)
