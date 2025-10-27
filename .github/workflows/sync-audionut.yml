@@ -1,0 +1,34 @@
+name: Sync Audionut Repo
+
+on:
+  schedule:
+    - cron: '0 7 * * *' # 08:00 ora italiana
+  workflow_dispatch: # per eseguirlo manualmente
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout GUI repo
+        uses: actions/checkout@v3
+        with:
+          persist-credentials: true
+
+      - name: Clone Audionut
+        run: |
+          rm -rf temp_repo
+          git clone https://github.com/Audionut/Upload-Assistant temp_repo
+
+      - name: Copy Audionut files
+        run: |
+          mkdir -p Upload-Assistant
+          rsync -a --delete --exclude='.git' temp_repo/ Upload-Assistant/
+
+      - name: Commit changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add Upload-Assistant
+          git diff --cached --quiet || git commit -m "Sync Audionut repo"
+          git push origin master
