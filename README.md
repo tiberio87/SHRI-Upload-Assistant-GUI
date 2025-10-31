@@ -32,10 +32,11 @@ ShareIsland
    - Get the source:
       - Clone the repo to your system `git clone https://github.com/tiberio87/SHRI-Upload-Assistant-GUI`
       - or download a zip of the source from the releases page and create/overwrite a local copy.
+      - Edit api_keys.json to use your information
       - Install virtual python environment `python -m venv .venv`
       - Activate the virtual environment `.venv\Scripts\activate`
       - Install necessary python modules `pip install -r requirements.txt`
-   - Edit (if necessary)`config.py` to use your information (more detailed information in the [wiki](https://github.com/Audionut/Upload-Assistant/wiki))
+   - Edit (if necessary)`config.py` to use your information
       - tmdb_api key can be obtained from https://www.themoviedb.org/settings/api
       - image host api keys can be obtained from their respective sites
 
