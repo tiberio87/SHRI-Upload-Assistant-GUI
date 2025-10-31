@@ -25,39 +25,8 @@ Immense thanks to him for establishing this project.
 
 ## Supported Sites:
 
-|Name|Acronym|Name|Acronym|
-|-|:-:|-|:-:|
-|Aither|AITHER|Alpharatio|AR|
-|AmigosShareClub|ASC|AnimeLovers|AL|
-|Anthelion|ANT|AsianCinema|ACM|
-|AvistaZ|AZ|Beyond-HD|BHD|
-|BitHDTV|BHDTV|Blutopia|BLU|
-|BrasilJapão-Share|BJS|BrasilTracker|BT|
-|CapybaraBR|CBR|Cinematik|TIK|
-|DarkPeers|DP|DigitalCore|DC|
-|Emuwarez|EMUW|FearNoPeer|FNP|
-|FileList|FL|Friki|FRIKI|
-|FunFile|FF|GreatPosterWall|GPW|
-|hawke-uno|HUNO|HDBits|HDB|
-|HD-Space|HDS|HD-Torrents|HDT|
-|HomieHelpDesk|HHD|ImmortalSeed|IS|
-|ItaTorrents|ITT|LastDigitalUnderground|LDU|
-|Lat-Team|LT|Locadora|LCD|
-|LST|LST|MoreThanTV|MTV|
-|Nebulance|NBL|OldToonsWorld|OTW|
-|OnlyEncodes+|OE|PassThePopcorn|PTP|
-|PolishTorrent|PTT|Portugas|PT|
-|PTerClub|PTER|PrivateHD|PHD|
-|PTSKIT|PTS|Racing4Everyone|R4E|
-|Rastastugan|RAS|ReelFLiX|RF|
-|RetroFlix|RTF|Samaritano|SAM|
-|seedpool|SP|ShareIsland|SHRI|
-|SkipTheCommericals|STC|SpeedApp|SPD|
-|Swarmazon|SN|TorrentHR|THR|
-|TorrentLeech|TL|ToTheGlory|TTG|
-|TVChaosUK|TVC|UHDShare|UHD|
-|ULCX|ULCX|UTOPIA|UTP|
-|YOiNKED|YOINK|YUSCENE|YUS|
+|Name|Acronym|
+|ShareIsland|SHRI|
 
 ## **Setup:**
    - **REQUIRES AT LEAST PYTHON 3.9 AND PIP3**
@@ -72,10 +41,10 @@ Immense thanks to him for establishing this project.
    - Install necessary python modules `pip3 install --user -U -r requirements.txt`
       - `sudo apt install pip` if needed
   - If you receive an error about externally managed environment, or otherwise wish to keep UA python separate:
-      - Install virtual python environment `python3 -m venv venv`
+      - Install virtual python environment `python -m venv venv`
       - Activate the virtual environment `source venv/bin/activate`
       - Then install the requirements `pip install -r requirements.txt`
-   - From the installation directory, run `python3 config-generator.py`
+   - From the installation directory, run `python config-generator.py`
    - OR
    - Copy and Rename `data/example-config.py` to `data/config.py`
    - Edit `config.py` to use your information (more detailed information in the [wiki](https://github.com/Audionut/Upload-Assistant/wiki))
