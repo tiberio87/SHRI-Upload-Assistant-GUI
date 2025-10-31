@@ -129,10 +129,11 @@ def patch_config(content: str, keys: dict) -> str:
     content = re.sub(r'(\"SHRI\"\s*:\s*\{.*?)("api_key"\s*:\s*").*?(\")', r'\1\2' + keys.get("shri_api", "") + r'\3', content, flags=re.DOTALL)
     content = content.replace('"add_logo": False', '"add_logo": True')
     content = content.replace('"logo_language": ""', '"logo_language": "it"')
-    content = content.replace('"img_host_1": ""', '"img_host_1": "imgbox"')
-    content = content.replace('"img_host_2": ""', '"img_host_2": "ptscreens"')
+    content = content.replace('"img_host_1": ""', '"img_host_1": "ptscreens"')
+    content = content.replace('"img_host_2": ""', '"img_host_2": "imgbox"')
     content = content.replace('"screens": "4"', '"screens": "6"')
     content = content.replace('"multiScreens": "2"', '"multiScreens": "0"')
+    content = content.replace('"search_requests": "False"', '"search_requests": "True"')
     content = content.replace('"use_italian_title": False', '"use_italian_title": True')
     return content
 
