@@ -1,5 +1,9 @@
 {
     "tmdb_api": "",
     "imgbb_api": "",
-    "shri_api": ""
+    "shri_api": "",
+    "qbit_url": "",
+    "qbit_port": "",
+    "qbit_user": "",
+    "qbit_pass": ""
   }

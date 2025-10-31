@@ -122,11 +122,13 @@ def ask_for_paths():
 
 def patch_config(content: str, keys: dict) -> str:
     content = re.sub(r'"tmdb_api"\s*:\s*".*?"', f'"tmdb_api": "{keys.get("tmdb_api", "")}"', content)
-    content = re.sub(r'"tvdb_api"\s*:\s*".*?"', f'"tvdb_api": "{keys.get("tvdb_api", "")}"', content)
-    content = re.sub(r'"tvdb_token"\s*:\s*".*?"', f'"tvdb_token": "{keys.get("tvdb_token", "")}"', content)
     content = re.sub(r'"imgbb_api"\s*:\s*".*?"', f'"imgbb_api": "{keys.get("imgbb_api", "")}"', content)
+    content = re.sub(r'"qbit_url"\s*:\s*".*?"', f'"qbit_url": "{keys.get("qbit_url", "http://127.0.0.1")}"', content)
+    content = re.sub(r'"qbit_port"\s*:\s*".*?"', f'"qbit_port": "{keys.get("qbit_port", "8080")}"', content)
+    content = re.sub(r'"qbit_user"\s*:\s*".*?"', f'"qbit_user": "{keys.get("qbit_user", "")}"', content)
+    content = re.sub(r'"qbit_pass"\s*:\s*".*?"', f'"qbit_pass": "{keys.get("qbit_pass", "")}"', content)
     content = re.sub(r'"tone_map"\s*:\s*True', '"tone_map": False', content)
-    content = re.sub(r'(\"SHRI\"\s*:\s*\{.*?)("api_key"\s*:\s*").*?(\")', r'\1\2' + keys.get("shri_api", "") + r'\3', content, flags=re.DOTALL)
+    content = re.sub(r'(\"SHRI\"\s*:\s*\{.*?)("api_key"\s*:\s*\").*?(\")', r'\1\2' + keys.get("shri_api", "") + r'\3', content, flags=re.DOTALL)
     content = content.replace('"add_logo": False', '"add_logo": True')
     content = content.replace('"logo_language": ""', '"logo_language": "it"')
     content = content.replace('"img_host_1": ""', '"img_host_1": "ptscreens"')
