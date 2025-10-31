@@ -40,8 +40,8 @@ ShareIsland
    - Install necessary python modules `pip3 install --user -U -r requirements.txt`
       - `sudo apt install pip` if needed
   - If you receive an error about externally managed environment, or otherwise wish to keep UA python separate:
-      - Install virtual python environment `python -m venv venv`
-      - Activate the virtual environment `source venv/bin/activate`
+      - Install virtual python environment `python -m venv .venv`
+      - Activate the virtual environment `source .venv/bin/activate`
       - Then install the requirements `pip install -r requirements.txt`
    - From the installation directory, run `python config-generator.py`
    - OR
