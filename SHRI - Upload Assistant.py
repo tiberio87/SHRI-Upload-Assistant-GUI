@@ -138,15 +138,7 @@ def patch_config(content: str, keys: dict) -> str:
     return content
 
 def setup_from_local():
-    """Setup usando una copia locale di SHRI-Upload-Assistant-GUI.
-
-    Comportamento:
-    - Se la sottocartella 'Upload-Assistant' è presente nella stessa cartella dello script,
-      offre all'utente di usarla automaticamente.
-    - Altrimenti, chiede all'utente di selezionare la cartella root dove si trova
-      'Upload-Assistant'.
-    Restituisce (bot_path, venv_path).
-    """
+    """Setup: usa Upload-Assistant locale se presente, altrimenti lo clona automaticamente dalla repo di Audionut."""
     progress_bar.pack(pady=(10, 0))
     progress_bar.set(0.0)
     status_label.configure(text="🔍 Preparazione setup locale...", text_color="yellow")
@@ -163,9 +155,9 @@ def setup_from_local():
             bot_path = detected_bot
 
     if not bot_path:
-        # chiedi all'utente la root dove è clonato 'SHRI-Upload-Assistant-GUI'
-        messagebox.showinfo("Setup automatico", "Seleziona la cartella root del progetto 'SHRI-Upload-Assistant-GUI' (dovrebbe contenere la sottocartella Upload-Assistant).")
-        target_dir = filedialog.askdirectory(title="Cartella root SHRI-Upload-Assistant-GUI")
+        # chiedi all'utente la root dove vuole installare/clonare Upload-Assistant
+        messagebox.showinfo("Setup automatico", "Seleziona la cartella root dove vuoi installare Upload-Assistant.")
+        target_dir = filedialog.askdirectory(title="Cartella root per Upload-Assistant")
         if not target_dir:
             messagebox.showerror("Errore", "Cartella non selezionata. Impossibile continuare.")
             app.destroy()
@@ -173,9 +165,19 @@ def setup_from_local():
 
         candidate = os.path.join(target_dir, "Upload-Assistant")
         if not os.path.exists(candidate) or not os.path.isdir(candidate):
-            messagebox.showerror("Errore", "Non ho trovato la cartella 'Upload-Assistant' nella root selezionata. Assicurati di aver clonato 'tiberio87/SHRI-Upload-Assistant-GUI'.")
-            app.destroy()
-            exit()
+            # Clona la repo di Audionut
+            status_label.configure(text="🔀 Clonazione Upload-Assistant...", text_color="yellow")
+            app.update()
+            process = subprocess.run(["git", "clone", "https://github.com/Audionut/Upload-Assistant.git"], cwd=target_dir)
+            if process.returncode != 0:
+                messagebox.showerror("Errore", "Errore durante la clonazione della repository Upload-Assistant.")
+                app.destroy()
+                exit()
+            candidate = os.path.join(target_dir, "Upload-Assistant")
+            if not os.path.exists(candidate) or not os.path.isdir(candidate):
+                messagebox.showerror("Errore", "Clonazione fallita: non trovo la cartella Upload-Assistant.")
+                app.destroy()
+                exit()
         bot_path = candidate
 
     progress_bar.set(0.2)
