@@ -25,8 +25,7 @@ Immense thanks to him for establishing this project.
 
 ## Supported Sites:
 
-|Name|Acronym|
-|ShareIsland|SHRI|
+ShareIsland
 
 ## **Setup:**
    - **REQUIRES AT LEAST PYTHON 3.9 AND PIP3**
