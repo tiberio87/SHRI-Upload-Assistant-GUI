@@ -322,7 +322,12 @@ def run_upload():
     service_value = service_entry.get().strip()
     edition_value = edition_entry.get().strip()
 
-    upload_cmd = f'python upload.py "{selected_path}" --skip_auto_torrent --no-seed --trackers {tracker} --cleanup'
+    # Controllo checkbox seed
+    do_seed = seed_var.get()
+    if do_seed:
+        upload_cmd = f'python upload.py "{selected_path}" --skip_auto_torrent --trackers {tracker} --cleanup'
+    else:
+        upload_cmd = f'python upload.py "{selected_path}" --skip_auto_torrent --no-seed --trackers {tracker} --cleanup'
 
     if imdb_id:
         upload_cmd += f" --imdb {imdb_id}"
@@ -378,6 +383,13 @@ ToolTip(service_entry, "Inserisci un nome servizio per il rilascio\n(es. NF, AMZ
 edition_entry = ctk.CTkEntry(app, placeholder_text="Aggiungi edizione (opzionale)", width=240)
 edition_entry.pack(pady=5)
 ToolTip(edition_entry, "Inserisci una versione speciale del film (opzionale).\nEsempio: HYBRID, Extended, Remastered, Director's Cut.")
+
+
+# Checkbox per seed torrent
+seed_var = tk.BooleanVar(value=False)
+seed_checkbox = ctk.CTkCheckBox(app, text="Fai seed del torrent dopo l'upload", variable=seed_var)
+seed_checkbox.pack(pady=5)
+ToolTip(seed_checkbox, "Se selezionato, il torrent verrà seedato dopo l'upload. Di default è NO.")
 
 upload_btn = ctk.CTkButton(app, text="Upload", command=run_upload)
 upload_btn.pack(pady=10)
