@@ -1,56 +1,56 @@
 # SHRI-Upload-Assistant-GUI
-A GUI of Audionut Upload-Assistant
+Interfaccia grafica per Audionut Upload-Assistant
 
-A simple tool to take the work out of uploading.
+Uno strumento semplice per semplificare il lavoro di upload.
 
-This project is a GUI of the original work of Audionut https://github.com/Audionut/Upload-Assistant
-Immense thanks to him for establishing this project.
+Questo progetto è una GUI basata sul lavoro originale di Audionut https://github.com/Audionut/Upload-Assistant
+Un ringraziamento speciale a lui per aver creato questo progetto.
 
-## What It Can Do:
-  - Generates and Parses MediaInfo/BDInfo.
-  - Generates and Uploads screenshots. HDR tonemapping if config.
-  - Uses srrdb to fix scene names used at sites.
-  - Can grab descriptions from PTP/BLU/Aither/LST/OE/BHD (with config option automatically on filename match, or using arg).
-  - Can strip and use existing screenshots from descriptions to skip screenshot generation and uploading.
-  - Obtains TMDb/IMDb/MAL/TVDB/TVMAZE identifiers.
-  - Converts absolute to season episode numbering for Anime. Non-Anime support with TVDB credentials
-  - Generates custom .torrents without useless top level folders/nfos.
-  - Can re-use existing torrents instead of hashing new.
-  - Can automagically search qBitTorrent version 5+ clients for matching existing torrent.
-  - Generates proper name for your upload using Mediainfo/BDInfo and TMDb/IMDb conforming to site rules.
-  - Checks for existing releases already on site.
-  - Adds to your client with fast resume, seeding instantly (rtorrent/qbittorrent/deluge/watch folder).
-  - ALL WITH MINIMAL INPUT!
-  - Currently works with .mkv/.mp4/Blu-ray/DVD/HD-DVDs.
+## Cosa può fare:
+  - Genera e analizza MediaInfo/BDInfo.
+  - Genera e carica screenshot. Tonemapping HDR se configurato.
+  - Usa srrdb per correggere i nomi scena usati nei siti.
+  - Può recuperare descrizioni da PTP/BLU/Aither/LST/OE/BHD (automaticamente su match del nome file o tramite argomento).
+  - Può estrarre e riutilizzare screenshot già presenti nelle descrizioni per saltare la generazione e l'upload.
+  - Ottiene identificatori TMDb/IMDb/MAL/TVDB/TVMAZE.
+  - Converte la numerazione assoluta in stagioni/episodi per Anime. Supporto Non-Anime con credenziali TVDB.
+  - Genera .torrent personalizzati senza cartelle/nfo inutili.
+  - Può riutilizzare torrent esistenti invece di crearne di nuovi.
+  - Può cercare automaticamente nei client qBitTorrent (versione 5+) torrent già esistenti.
+  - Genera il nome corretto per l'upload usando Mediainfo/BDInfo e TMDb/IMDb conforme alle regole del sito.
+  - Controlla se il rilascio è già presente sul sito.
+  - Aggiunge al client con resume veloce, seed immediato (rtorrent/qbittorrent/deluge/watch folder).
+  - TUTTO CON INPUT MINIMO!
+  - Attualmente funziona con .mkv/.mp4/Blu-ray/DVD/HD-DVDs.
 
-## Supported Sites:
+## Siti supportati:
 
 ShareIsland
 
 ## **Setup:**
-   - **REQUIRES AT LEAST PYTHON 3.9 AND PIP3**
-   - Get the source:
-      - Clone the repo to your system `git clone https://github.com/tiberio87/SHRI-Upload-Assistant-GUI`
-      - or download a zip of the source from the releases page and create/overwrite a local copy.
-      - Edit `api_keys.json` to use your information
-      - Install virtual python environment `python -m venv .venv`
-      - Activate the virtual environment `.venv\Scripts\activate`
-      - Install necessary python modules `pip install -r requirements.txt`
-   - Edit (if necessary) `config.py` to use your information
-      - tmdb_api key can be obtained from https://www.themoviedb.org/settings/api
-      - image host api keys can be obtained from their respective sites
+   - **RICHIEDE ALMENO PYTHON 3.9 E PIP3**
+   - Ottieni il codice sorgente:
+      - Clona la repo sul tuo sistema `git clone https://github.com/tiberio87/SHRI-Upload-Assistant-GUI`
+      - oppure scarica lo zip dalla pagina dei rilasci e crea/sovrascrivi una copia locale.
+      - Modifica `api_keys.json` con i tuoi dati
+      - Installa l'ambiente virtuale python `python -m venv .venv`
+      - Attiva l'ambiente virtuale `.venv\Scripts\activate`
+      - Installa i moduli python necessari `pip install -r requirements.txt`
+   - Modifica (se necessario) `config.py` con i tuoi dati
+      - La chiave tmdb_api si ottiene da https://www.themoviedb.org/settings/api
+      - Le chiavi API degli host immagini si ottengono dai rispettivi siti
 
-   **Additional Resources are found in the [wiki](https://github.com/Audionut/Upload-Assistant/wiki)**
+   **Risorse aggiuntive disponibili nella [wiki](https://github.com/Audionut/Upload-Assistant/wiki)**
 
-   Feel free to contact me if you need help, I'm not that hard to find.
+   Contattami pure se hai bisogno di aiuto, non sono difficile da trovare.
 
-## **Updating:**
-  - To update BOT press green button "Controlla aggiornamenti BOT"
-  - To update modules press green button "Controlla aggiornamenti dipendenze"
+## **Aggiornamenti:**
+  - Per aggiornare il BOT premi il pulsante verde "Controlla aggiornamenti BOT"
+  - Per aggiornare i moduli premi il pulsante verde "Controlla aggiornamenti dipendenze"
 
-## **Attributions:**
+## **Attribuzioni:**
 
-Built with updated BDInfoCLI from https://github.com/rokibhasansagar/BDInfoCLI-ng
+Realizzato con BDInfoCLI aggiornato da https://github.com/rokibhasansagar/BDInfoCLI-ng
 
 <p>
   <a href="https://github.com/autobrr/mkbrr"><img src="https://github.com/autobrr/mkbrr/blob/main/.github/assets/mkbrr-dark.png?raw=true" alt="mkbrr" height="40px;"></a>&nbsp;&nbsp;
