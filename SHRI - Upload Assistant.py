@@ -6,6 +6,10 @@ import re
 import customtkinter as ctk
 from tkinter import filedialog, messagebox
 import tkinter as tk
+from tkinter import scrolledtext
+import threading
+import queue
+import sys
 
 # === Tooltip ===
 class ToolTip:
@@ -31,6 +35,209 @@ class ToolTip:
         if self.tip_window:
             self.tip_window.destroy()
             self.tip_window = None
+
+# === Terminale Integrato ===
+class IntegratedTerminal:
+    def __init__(self, parent):
+        self.parent = parent
+        self.process = None
+        self.output_queue = queue.Queue()
+        
+        # Frame per il terminale
+        self.terminal_frame = ctk.CTkFrame(parent)
+        
+        # Etichetta del terminale
+        self.terminal_label = ctk.CTkLabel(self.terminal_frame, text="🖥️ Terminale PowerShell", font=("Arial", 14, "bold"))
+        self.terminal_label.pack(pady=(10, 5))
+        
+        # Area di output del terminale
+        self.terminal_output = scrolledtext.ScrolledText(
+            self.terminal_frame,
+            height=15,
+            width=80,
+            bg="#1a1a1a",
+            fg="#00ff00",
+            font=("Consolas", 10),
+            wrap=tk.WORD,
+            state=tk.DISABLED
+        )
+        self.terminal_output.pack(padx=10, pady=(0, 5), fill="both", expand=True)
+        
+        # Frame per input e controlli
+        self.control_frame = ctk.CTkFrame(self.terminal_frame)
+        self.control_frame.pack(fill="x", padx=10, pady=(0, 10))
+        
+        # Entry per input comandi
+        self.command_entry = ctk.CTkEntry(
+            self.control_frame,
+            placeholder_text="Digita un comando PowerShell...",
+            font=("Consolas", 12)
+        )
+        self.command_entry.pack(side="left", fill="x", expand=True, padx=(0, 5))
+        self.command_entry.bind("<Return>", self.execute_command)
+        
+        # Bottone per eseguire comando
+        self.execute_btn = ctk.CTkButton(
+            self.control_frame,
+            text="Esegui",
+            command=self.execute_command,
+            width=80
+        )
+        self.execute_btn.pack(side="right")
+        
+        # Bottone per pulire il terminale
+        self.clear_btn = ctk.CTkButton(
+            self.control_frame,
+            text="Pulisci",
+            command=self.clear_terminal,
+            width=80,
+            fg_color="gray",
+            hover_color="darkgray"
+        )
+        self.clear_btn.pack(side="right", padx=(0, 5))
+        
+        # Inizializza PowerShell
+        self.start_powershell()
+        
+    def start_powershell(self):
+        """Avvia una sessione PowerShell persistente"""
+        try:
+            self.process = subprocess.Popen(
+                ["powershell.exe", "-NoExit", "-Command", "-"],
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+                bufsize=1,
+                universal_newlines=True,
+                creationflags=subprocess.CREATE_NO_WINDOW
+            )
+            
+            # Avvia il thread per leggere l'output
+            self.output_thread = threading.Thread(target=self.read_output, daemon=True)
+            self.output_thread.start()
+            
+            # Avvia il thread per aggiornare la GUI
+            self.update_thread = threading.Thread(target=self.update_terminal, daemon=True)
+            self.update_thread.start()
+            
+            self.write_to_terminal("🚀 Terminale PowerShell avviato\n", "info")
+            
+        except Exception as e:
+            self.write_to_terminal(f"❌ Errore nell'avvio di PowerShell: {e}\n", "error")
+    
+    def read_output(self):
+        """Legge l'output dal processo PowerShell"""
+        if not self.process:
+            return
+            
+        try:
+            while self.process.poll() is None:
+                output = self.process.stdout.readline()
+                if output:
+                    self.output_queue.put(("output", output))
+        except Exception as e:
+            self.output_queue.put(("error", f"Errore lettura output: {e}\n"))
+    
+    def update_terminal(self):
+        """Aggiorna il terminale con l'output dalla coda"""
+        while True:
+            try:
+                msg_type, content = self.output_queue.get(timeout=0.1)
+                if msg_type == "output":
+                    self.write_to_terminal(content, "output")
+                elif msg_type == "error":
+                    self.write_to_terminal(content, "error")
+                elif msg_type == "info":
+                    self.write_to_terminal(content, "info")
+            except queue.Empty:
+                continue
+            except Exception:
+                break
+    
+    def write_to_terminal(self, text, msg_type="output"):
+        """Scrive testo nel terminale con colori diversi"""
+        def update():
+            self.terminal_output.config(state=tk.NORMAL)
+            
+            # Configura i tag per i colori
+            if not hasattr(self, 'tags_configured'):
+                self.terminal_output.tag_configure("output", foreground="#00ff00")
+                self.terminal_output.tag_configure("error", foreground="#ff5555")
+                self.terminal_output.tag_configure("info", foreground="#55aaff")
+                self.terminal_output.tag_configure("command", foreground="#ffff55")
+                self.tags_configured = True
+            
+            self.terminal_output.insert(tk.END, text, msg_type)
+            self.terminal_output.see(tk.END)
+            self.terminal_output.config(state=tk.DISABLED)
+        
+        # Esegui sulla GUI thread principale
+        if hasattr(self.parent, 'after'):
+            self.parent.after(0, update)
+    
+    def execute_command(self, event=None):
+        """Esegue un comando nel terminale"""
+        command = self.command_entry.get().strip()
+        if not command:
+            return
+            
+        self.command_entry.delete(0, tk.END)
+        
+        # Mostra il comando nel terminale
+        self.write_to_terminal(f"PS> {command}\n", "command")
+        
+        if command.lower() in ['exit', 'quit']:
+            self.close_terminal()
+            return
+        
+        if command.lower() == 'clear':
+            self.clear_terminal()
+            return
+            
+        try:
+            if self.process and self.process.poll() is None:
+                self.process.stdin.write(command + "\n")
+                self.process.stdin.flush()
+        except Exception as e:
+            self.write_to_terminal(f"❌ Errore nell'esecuzione del comando: {e}\n", "error")
+    
+    def execute_script_command(self, command):
+        """Esegue un comando script nel terminale (per i bottoni della GUI)"""
+        self.write_to_terminal(f"PS> {command}\n", "command")
+        
+        try:
+            if self.process and self.process.poll() is None:
+                self.process.stdin.write(command + "\n")
+                self.process.stdin.flush()
+        except Exception as e:
+            self.write_to_terminal(f"❌ Errore nell'esecuzione del comando: {e}\n", "error")
+    
+    def clear_terminal(self):
+        """Pulisce il contenuto del terminale"""
+        self.terminal_output.config(state=tk.NORMAL)
+        self.terminal_output.delete(1.0, tk.END)
+        self.terminal_output.config(state=tk.DISABLED)
+        self.write_to_terminal("🧹 Terminale pulito\n", "info")
+    
+    def close_terminal(self):
+        """Chiude il terminale"""
+        if self.process:
+            try:
+                self.process.terminate()
+                self.process.wait(timeout=3)
+            except:
+                self.process.kill()
+            self.process = None
+        self.write_to_terminal("🔴 Terminale chiuso\n", "error")
+    
+    def pack(self, **kwargs):
+        """Permette di usare pack() sul terminale"""
+        self.terminal_frame.pack(**kwargs)
+    
+    def pack_forget(self):
+        """Nasconde il terminale"""
+        self.terminal_frame.pack_forget()
 
 # === Dialog personalizzati ===
 class CTkYesNoDialog(ctk.CTkToplevel):
@@ -67,7 +274,7 @@ ctk.set_default_color_theme("blue")
 
 app = ctk.CTk()
 app.title("Upload Assistant GUI")
-app.geometry("600x800")
+app.geometry("800x1000")
 app.resizable(True, True)
 
 status_label = ctk.CTkLabel(app, text="", text_color="green")
@@ -261,6 +468,9 @@ bot_path, venv_path = get_valid_paths()
 activate_path = resolve_activate_path(venv_path)
 assert activate_path is not None, "Percorso di attivazione non trovato"
 
+# Inizializza il terminale integrato
+terminal = IntegratedTerminal(app)
+
 # === FUNZIONI APPLICAZIONE ===
 def select_path():
     global selected_path
@@ -298,17 +508,26 @@ def run_git_pull():
     progress_bar.set(0.0)
     status_label.configure(text="🔄 Controllo aggiornamenti Bot...", text_color="yellow")
     app.update()
-    full_cmd = f'start cmd.exe /k "cd /d \"{bot_path}\" && call \"{activate_path}\" && git pull"'
-    subprocess.Popen(full_cmd, shell=True)
+    
+    # Cambia directory e esegue git pull nel terminale integrato
+    terminal.execute_script_command(f'cd "{bot_path}"')
+    terminal.execute_script_command('git pull')
+    
     progress_bar.set(1.0)
+    status_label.configure(text="✅ Comando git pull inviato", text_color="green")
 
 def run_pip_install():
     progress_bar.set(0.0)
     status_label.configure(text="🔄 Controllo aggiornamenti pip...", text_color="yellow")
     app.update()
-    full_cmd = f'start cmd.exe /k "cd /d \"{bot_path}\" && call \"{activate_path}\" && pip install -r requirements.txt"'
-    subprocess.Popen(full_cmd, shell=True)
+    
+    # Attiva l'ambiente virtuale e installa i requirements
+    terminal.execute_script_command(f'cd "{bot_path}"')
+    terminal.execute_script_command(f'& "{activate_path}"')
+    terminal.execute_script_command('pip install -r requirements.txt')
+    
     progress_bar.set(1.0)
+    status_label.configure(text="✅ Comando pip install inviato", text_color="green")
 
 def run_upload():
     if not selected_path or not os.path.exists(selected_path):
@@ -340,9 +559,12 @@ def run_upload():
     if edition_value:
         upload_cmd += f" --edition {edition_value}"
 
-    full_cmd = f'start cmd.exe /k "cd /d \"{bot_path}\" && call \"{activate_path}\" && {upload_cmd}"'
-    subprocess.Popen(full_cmd, shell=True)
-    status_label.configure(text="✅ Upload avviato...", text_color="green")
+    # Esegue l'upload nel terminale integrato
+    terminal.execute_script_command(f'cd "{bot_path}"')
+    terminal.execute_script_command(f'& "{activate_path}"')
+    terminal.execute_script_command(upload_cmd)
+    
+    status_label.configure(text="✅ Upload avviato nel terminale...", text_color="green")
 
 # === LAYOUT ===
 ctk.CTkLabel(app, text="Tipo di rilascio").pack(pady=(15, 0))
@@ -413,6 +635,16 @@ progress_bar.pack(pady=(10, 0))
 
 status_label = ctk.CTkLabel(app, text="", text_color="green")
 status_label.pack(pady=10)
+
+# Aggiungi il terminale alla GUI
+terminal.pack(fill="both", expand=True, padx=10, pady=10)
+
+# Funzione per chiudere il terminale quando l'app viene chiusa
+def on_closing():
+    terminal.close_terminal()
+    app.destroy()
+
+app.protocol("WM_DELETE_WINDOW", on_closing)
 
 ctk.CTkLabel(app, text="Authors: Tiberio87").pack(pady=5)
 
